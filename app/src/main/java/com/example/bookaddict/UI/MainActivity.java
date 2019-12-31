@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.bookaddict.Model.VolumesResponse;
 import com.example.bookaddict.R;
 import com.example.bookaddict.Repository.RepositoryVolumes;
 
@@ -23,22 +24,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Single<ResponseBody>  single = RepositoryVolumes.getRepositoryVolumesInstance().getResponse("android");
+        Single<VolumesResponse>  single = RepositoryVolumes.getRepositoryVolumesInstance().getResponse("android");
         single.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new SingleObserver<ResponseBody>() {
+                .subscribe(new SingleObserver<VolumesResponse>() {
                     @Override
                     public void onSubscribe(Disposable d) {
 
                     }
 
                     @Override
-                    public void onSuccess(ResponseBody responseBody) {
-                        try {
-                            Log.d(TAG, "onSuccess: "+responseBody.string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    public void onSuccess(VolumesResponse responseBody) {
+
+                        Log.d(TAG, "onSuccess: "+responseBody.kind);
                     }
 
                     @Override

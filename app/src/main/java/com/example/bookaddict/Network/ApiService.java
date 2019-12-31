@@ -1,6 +1,7 @@
 package com.example.bookaddict.Network;
 
 import com.example.bookaddict.BuildConfig;
+import com.example.bookaddict.Model.VolumesResponse;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -11,8 +12,8 @@ import retrofit2.http.Query;
 
 public interface ApiService {
     @GET("volumes?key=" + BuildConfig.API_KEY)
-    Single<ResponseBody> getResponse(@Query("q")String q);
+    Single<VolumesResponse> getResponse(@Query("q")String q);
 
-    @GET("volumes")
-    Observable<ResponseBody> getResponseInObs();
+    @GET("volumes?key=" + BuildConfig.API_KEY)
+    Observable<VolumesResponse> getResponseInObs(@Query("q")String q);
 }
