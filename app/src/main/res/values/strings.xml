@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">BookAddict</string>
+    <string name="hint_message">Which Subject are you interseted in?</string>
 </resources>

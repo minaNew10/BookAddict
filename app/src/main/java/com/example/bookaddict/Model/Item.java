@@ -8,7 +8,35 @@ public class Item {
     public String selfLink;
     public VolumeInfo volumeInfo;
     public SaleInfo saleInfo;
+    public UserInfo userInfo;
     public AccessInfo accessInfo;
     public SearchInfo searchInfo;
 
+    public String getKind() {
+        return kind;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getSelfLink() {
+        return selfLink;
+    }
+
+    public VolumeInfo getVolumeInfo() {
+        return volumeInfo;
+    }
+
+    public SaleInfo getSaleInfo() {
+        return saleInfo;
+    }
+
+    public AccessInfo getAccessInfo() {
+        return accessInfo;
+    }
+
+    public SearchInfo getSearchInfo() {
+        return searchInfo;
+    }
 }
