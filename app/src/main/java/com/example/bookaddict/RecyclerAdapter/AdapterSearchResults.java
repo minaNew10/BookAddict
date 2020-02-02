@@ -67,9 +67,14 @@ public class AdapterSearchResults extends RecyclerView.Adapter<AdapterSearchResu
             }
         }
         holder.txtv_author.setText(sb.toString());
-        holder.txtv_page_count.setText(volumeInfo.getPageCount());
-        holder.txtv_review.setText(volumeInfo.get);
+        holder.txtv_page_count.setText(String.valueOf(volumeInfo.getPageCount()));
+//        holder.txtv_review.setText(volumeInfo.get);
 
+    }
+
+    public void addBooks(List<Item> items){
+        this.items.addAll(items);
+        notifyDataSetChanged();
     }
 
     @Override

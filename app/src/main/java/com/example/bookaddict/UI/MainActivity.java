@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import com.example.bookaddict.Model.Item;
@@ -33,20 +34,28 @@ public class MainActivity extends AppCompatActivity {
     ImageView imgvSearch;
     List<Item> items;
     AdapterSearchResults adapterSearchResults;
+    int page;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         adapterSearchResults = new AdapterSearchResults();
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.getChildCount();
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapterSearchResults);
-
+        imgvSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadBooks(page);
+            }
+        });
 
     }
 
-    @OnClick(R.id.imgv_icon_search)
-    public void loadBooks(){
+//    @OnClick(R.id.imgv_icon_search)
+    public void loadBooks(int page){
         if(!TextUtils.isEmpty(etxtSearch.getText())){
             Single<VolumesResponse>  single = RepositoryVolumes.getRepositoryVolumesInstance().getResponse(etxtSearch.getText().toString());
             single.subscribeOn(Schedulers.io())
@@ -59,8 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onSuccess(VolumesResponse responseBody) {
-
-                            adapterSearchResults.setItems(responseBody.getItems());
+                            adapterSearchResults.addBooks(responseBody.getItems());
                         }
 
                         @Override
