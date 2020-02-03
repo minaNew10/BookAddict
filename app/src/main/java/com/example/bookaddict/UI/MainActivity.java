@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onSuccess(VolumesResponse responseBody) {
-                            adapterSearchResults.addBooks(responseBody.getItems());
+                            adapterSearchResults.setItems(responseBody.getItems());
                         }
 
                         @Override

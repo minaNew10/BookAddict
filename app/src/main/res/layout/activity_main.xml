@@ -64,5 +64,12 @@
         app:constraint_referenced_ids="txtv_search,imgv_icon_search"
         tools:layout_editor_absoluteY="731dp" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="center"
+        android:visibility="gone"></ProgressBar>
 
+    <include layout="@layout/error_layout"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
