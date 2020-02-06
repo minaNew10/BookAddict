@@ -4,8 +4,6 @@ import com.example.bookaddict.Model.VolumesResponse;
 import com.example.bookaddict.Network.RetrofitClient;
 
 import io.reactivex.Single;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class RepositoryVolumes {
     private static RepositoryVolumes repositoryVolumes;
@@ -20,6 +18,12 @@ public class RepositoryVolumes {
 
     public Single<VolumesResponse> getResponse(String q){
         Single<VolumesResponse> single = RetrofitClient.getApiService().getResponse(q);
+        return single;
+    }
+
+    public Single<VolumesResponse> getTenItems(String q, int startIndex,int ResultsCount){
+        Single<VolumesResponse> single = RetrofitClient.getApiService()
+                .getTenItems(q,startIndex,ResultsCount);
         return single;
     }
 }

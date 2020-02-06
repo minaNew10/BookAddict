@@ -25,7 +25,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     List<Item> items = new ArrayList<>();
     private static final int ITEM = 0;
     private static final int LOADING = 1;
@@ -43,8 +44,13 @@ public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.View
         void onClick(Item currItem);
     }
 
-    public AdapterSearchResults() {
+    public PaginationAdapter() {
 
+    }
+
+    public PaginationAdapter(Context context, OnBookClickListener listener) {
+        this.context = context;
+        this.onRecyclerItemClickListener = listener;
     }
 
     public List<Item> getItems() {
@@ -54,11 +60,6 @@ public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.View
     public void setItems(List<Item> items) {
         this.items = items;
         notifyDataSetChanged();
-    }
-
-    public AdapterSearchResults(Context context, OnBookClickListener listener) {
-        this.context = context;
-        this.onRecyclerItemClickListener = listener;
     }
 
     @NonNull
@@ -98,15 +99,17 @@ public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.View
                 VolumeInfo volumeInfo = item.getVolumeInfo();
                 itemBookViewHolder.txtv_title.setText(volumeInfo.getTitle());
                 String[] authors = volumeInfo.getAuthors();
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0, len = authors.length; i < len; i++) {
-                    if (i != len - 1) {
-                        sb.append(authors[i] + ", ");
-                    } else {
-                        sb.append(authors[i] + ".");
+                if(authors != null) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0, len = authors.length; i < len; i++) {
+                        if (i != len - 1) {
+                            sb.append(authors[i] + ", ");
+                        } else {
+                            sb.append(authors[i] + ".");
+                        }
                     }
+                    itemBookViewHolder.txtv_author.setText(sb.toString());
                 }
-                itemBookViewHolder.txtv_author.setText(sb.toString());
                 itemBookViewHolder.txtv_page_count.setText(String.valueOf(volumeInfo.getPageCount()));
     //        holder.txtv_review.setText(volumeInfo.get);
                 break;
@@ -114,6 +117,15 @@ public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.View
                 break;
         }
 
+    }
+
+    @Override
+    public int getItemCount() {
+        return items == null ? 0: items.size();
+    }
+    @Override
+    public int getItemViewType(int position) {
+        return (position == items.size() - 1 && isLoadingAdded) ? LOADING : ITEM;
     }
 
     public void addBooks(List<Item> items){
@@ -146,7 +158,7 @@ public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.View
     }
     public void addLoadingFooter() {
         isLoadingAdded = true;
-        items.add(new Item());
+        addBook(new Item());
     }
 
     public void removeLoadingFooter() {
@@ -163,17 +175,9 @@ public class AdapterSearchResults extends RecyclerView.Adapter<RecyclerView.View
     public Item getItem(int position) {
         return items.get(position);
     }
-    @Override
-    public int getItemCount() {
-        if (items == null)
-            return 0;
-        return items.size();
-    }
 
-    @Override
-    public int getItemViewType(int position) {
-        return (position == items.size() - 1 && isLoadingAdded) ? LOADING : ITEM;
-    }
+
+
 
 
 

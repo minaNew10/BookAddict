@@ -15,7 +15,7 @@ public interface  ApiService {
     Single<VolumesResponse> getResponse(@Query("q")String q);
 
     @GET("volumes?key=" + BuildConfig.API_KEY)
-    Single<VolumesResponse> getResponseInPage(@Query("q")String q,@Query("maxResults")int n);
+    Single<VolumesResponse> getTenItems(@Query("q")String q, @Query("startIndex")int startIndex,@Query("maxResults")int resultsCount);
 
     @GET("volumes?key=" + BuildConfig.API_KEY)
     Observable<VolumesResponse> getResponseInObs(@Query("q")String q);

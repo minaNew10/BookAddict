@@ -7,7 +7,7 @@
     tools:context=".UI.MainActivity">
 
     <EditText
-        android:id="@+id/txtv_search"
+        android:id="@+id/etxt_search"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/hint_message"
@@ -42,9 +42,9 @@
         android:id="@+id/imgv_icon_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/txtv_search"
+        app:layout_constraintBottom_toBottomOf="@+id/etxt_search"
         app:layout_constraintEnd_toStartOf="@+id/right_guideline"
-        app:layout_constraintTop_toTopOf="@+id/txtv_search"
+        app:layout_constraintTop_toTopOf="@+id/etxt_search"
         app:srcCompat="@drawable/icon_search" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -61,14 +61,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="txtv_search,imgv_icon_search"
+        app:constraint_referenced_ids="etxt_search,imgv_icon_search"
         tools:layout_editor_absoluteY="731dp" />
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/main_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:foregroundGravity="center"
+        app:layout_constraintTop_toBottomOf="@id/etxt_search"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:visibility="gone"></ProgressBar>
 
     <include layout="@layout/error_layout"/>
