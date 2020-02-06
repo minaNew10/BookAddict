@@ -109,15 +109,20 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(VolumesResponse responseBody) {
                                 if(responseBody.getItems() == null || responseBody.getItems().size() == 0 ){
+                                    paginationAdapter.removeLoadingFooter();
                                     ITEMS_ARE_NULL = true;
                                     return;
                                 }
                                 Log.i(TAG, "onSuccess: items are null =  " + ITEMS_ARE_NULL);
                                 mainProgressBar.setVisibility(View.GONE);
-                                if(INDEX_OF_START_ITEM == 0)
+                                if(INDEX_OF_START_ITEM == 0) {
                                     paginationAdapter.setItems(responseBody.getItems());
+                                    paginationAdapter.addLoadingFooter();
+                                }
                                 else {
+                                    paginationAdapter.removeLoadingFooter();
                                     paginationAdapter.addBooks(responseBody.getItems());
+                                    paginationAdapter.addLoadingFooter();
                                     isLoading= false;
                                 }
                                 INDEX_OF_START_ITEM+=NO_OF_ITEMS_IN_ONE_LOAD;
@@ -125,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onError(Throwable e) {
-
                                 Log.d(TAG, "onError: " +e.getMessage());
                             }
                         });
