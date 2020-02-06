@@ -1,23 +1,30 @@
 package com.example.bookaddict.RecyclerAdapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.example.bookaddict.Model.ImageLinks;
 import com.example.bookaddict.Model.Item;
 import com.example.bookaddict.Model.VolumeInfo;
 import com.example.bookaddict.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +53,10 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public PaginationAdapter() {
 
+    }
+
+    public PaginationAdapter(Context context) {
+        this.context = context;
     }
 
     public PaginationAdapter(Context context, OnBookClickListener listener) {
@@ -111,6 +122,35 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     itemBookViewHolder.txtv_author.setText(sb.toString());
                 }
                 itemBookViewHolder.txtv_page_count.setText(String.valueOf(volumeInfo.getPageCount()));
+                ImageLinks imageLinks = volumeInfo.getImageLinks();
+                if(imageLinks!= null ) {
+                    String image = imageLinks.getImageForThumbnail();
+                    if( image !=null) {
+                        Glide.with(context)
+                                .load(image)
+                                .listener(new RequestListener<Drawable>() {
+                                    @Override
+                                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        itemBookViewHolder.progressBarImg.setVisibility(View.GONE);
+                                        itemBookViewHolder.txtv_no_img.setVisibility(View.VISIBLE);
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        itemBookViewHolder.progressBarImg.setVisibility(View.GONE);
+                                        return false;
+                                    }
+                                })
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .centerCrop()
+                                .into(itemBookViewHolder.imgv_small_thumbnail);
+                    }else {
+                        itemBookViewHolder.txtv_no_img.setVisibility(View.VISIBLE);
+                        itemBookViewHolder.progressBarImg.setVisibility(View.GONE);
+                    }
+                }
+
     //        holder.txtv_review.setText(volumeInfo.get);
                 break;
             case LOADING:
@@ -188,6 +228,8 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         @BindView(R.id.txtv_page_count) TextView txtv_page_count;
         @BindView(R.id.txtv_review) TextView txtv_review;
         @BindView(R.id.imgv_small_thumbnail) ImageView imgv_small_thumbnail;
+        @BindView(R.id.progress_img) ProgressBar progressBarImg;
+        @BindView(R.id.txtv_no_image) TextView txtv_no_img;
 
         public ItemBookViewHolder(@NonNull View itemView) {
             super(itemView);
