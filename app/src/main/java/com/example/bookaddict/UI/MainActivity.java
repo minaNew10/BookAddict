@@ -2,6 +2,7 @@ package com.example.bookaddict.UI;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,7 +36,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PaginationAdapter.OnBookClickListener {
     private static final String TAG = "MainActivity";
     @BindView(R.id.recycler_main_activity_search_results)
     RecyclerView recyclerView;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        paginationAdapter = new PaginationAdapter(this);
+        paginationAdapter = new PaginationAdapter(this,this);
         linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
 
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -80,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
                 isLoading = true;
                 loadBooks();
             }
-
-
 
             @Override
             public boolean itemsAreNull() {
@@ -140,7 +139,11 @@ public class MainActivity extends AppCompatActivity {
                             public void onError(Throwable e){
                                 Log.d(TAG, "onError: " +e.getMessage());
                                 mainProgressBar.setVisibility(View.GONE);
-                                showErrorView(e);
+                                if(INDEX_OF_START_ITEM == 0) {
+                                    showErrorView(e);
+                                }else {
+                                    paginationAdapter.showRetry(true,fetchErrorMessage(e));
+                                }
                             }
                         });
 
@@ -151,18 +154,21 @@ public class MainActivity extends AppCompatActivity {
         if (error_layout.getVisibility() == View.GONE) {
             error_layout.setVisibility(View.VISIBLE);
             mainProgressBar.setVisibility(View.GONE);
-            // display appropriate error message
-            // Handling 3 generic fail cases.
-            if (!isNetworkConnected()) {
-                txtv_error.setText(R.string.error_msg_no_internet);
-            } else {
-                if (throwable instanceof TimeoutException) {
-                    txtv_error.setText(R.string.error_msg_timeout);
-                } else {
-                    txtv_error.setText(R.string.error_msg_unknown);
-                }
-            }
+            txtv_error.setText(fetchErrorMessage(throwable));
         }
+    }
+
+    private String fetchErrorMessage(Throwable throwable) {
+        String errorMsg = getResources().getString(R.string.error_msg_unknown);
+        // display appropriate error message
+        // Handling 3 generic fail cases.
+        if (!isNetworkConnected()) {
+            errorMsg = getResources().getString(R.string.error_msg_no_internet);
+        } else if (throwable instanceof TimeoutException) {
+            errorMsg = getResources().getString(R.string.error_msg_timeout);
+        }
+
+        return errorMsg;
     }
 
     /**
@@ -180,5 +186,15 @@ public class MainActivity extends AppCompatActivity {
             error_layout.setVisibility(View.GONE);
 
         }
+    }
+
+    @Override
+    public void onClick(Item currItem) {
+
+    }
+
+    @Override
+    public void retryPageLoad() {
+        loadBooks();
     }
 }

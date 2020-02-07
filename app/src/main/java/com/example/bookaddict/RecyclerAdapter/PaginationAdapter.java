@@ -5,7 +5,9 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -39,16 +41,17 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int LOADING = 1;
     // flag for footer ProgressBar (i.e. last item of list)
     private boolean isLoadingAdded = false;
+    private boolean retryPageLoad = false;
 
 
-
-    OnBookClickListener onRecyclerItemClickListener;
+    OnBookClickListener mOnRecyclerItemClickListener;
     Context context;
 
     private String errorMsg;
 
     public interface OnBookClickListener {
         void onClick(Item currItem);
+        void retryPageLoad();
     }
 
     public PaginationAdapter() {
@@ -61,7 +64,7 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public PaginationAdapter(Context context, OnBookClickListener listener) {
         this.context = context;
-        this.onRecyclerItemClickListener = listener;
+        this.mOnRecyclerItemClickListener = listener;
     }
 
     public List<Item> getItems() {
@@ -154,6 +157,19 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     //        holder.txtv_review.setText(volumeInfo.get);
                 break;
             case LOADING:
+                LoadingVH loadingVH = (LoadingVH) holder;
+                if(retryPageLoad){
+                    loadingVH.mErrorLayout.setVisibility(View.VISIBLE);
+                    loadingVH.mProgressBar.setVisibility(View.GONE);
+                    loadingVH.mErrorTxtv.setText(
+                            errorMsg != null ?
+                                    errorMsg:
+                                    context.getString(R.string.error_msg_unknown)
+                    );
+                }else {
+                    loadingVH.mErrorLayout.setVisibility(View.GONE);
+                    loadingVH.mProgressBar.setVisibility(View.VISIBLE);
+                }
                 break;
         }
 
@@ -217,11 +233,22 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
 
+    /**
+     * Displays Pagination retry footer view along with appropriate errorMsg
+     *
+     * @param show
+     * @param errorMsg to display if page load fails
+     */
+    public void showRetry(boolean show, @Nullable String errorMsg) {
+        retryPageLoad = show;
+        notifyItemChanged(items.size() - 1);
+
+        if (errorMsg != null) this.errorMsg = errorMsg;
+    }
 
 
 
-
-    public class ItemBookViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    protected class ItemBookViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @BindView(R.id.txtv_title) TextView txtv_title;
         @BindView(R.id.txtv_subtitle) TextView txtv_subtitle;
         @BindView(R.id.txtv_author) TextView txtv_author;
@@ -239,20 +266,34 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onClick(View view) {
-            onRecyclerItemClickListener.onClick(items.get(getAdapterPosition()));
+            mOnRecyclerItemClickListener.onClick(items.get(getAdapterPosition()));
         }
     }
     protected class LoadingVH extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private ProgressBar mProgressBar;
+
+      @BindView(R.id.loadmore_progress) ProgressBar mProgressBar;
+      @BindView(R.id.loadmore_retry)ImageButton mRetryBtn;
+      @BindView(R.id.loadmore_errorlayout) LinearLayout mErrorLayout;
+      @BindView(R.id.loadmore_errortxt) TextView mErrorTxtv;
+
 
         public LoadingVH(View itemView) {
             super(itemView);
+            ButterKnife.bind(this,itemView);
+            mRetryBtn.setOnClickListener(this);
+            mErrorLayout.setOnClickListener(this);
 
-            mProgressBar = itemView.findViewById(R.id.loadmore_progress);
-              }
+        }
 
         @Override
         public void onClick(View view) {
+            switch (view.getId()){
+                case R.id.loadmore_retry:
+                case R.id.loadmore_errorlayout:
+                    showRetry(false,null);
+                    mOnRecyclerItemClickListener.retryPageLoad();
+                    break;
+            }
 
         }
     }
