@@ -1,17 +1,24 @@
 package com.example.bookaddict.UI;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-
+import android.widget.TextView;
+import java.util.concurrent.TimeoutException;
 import com.example.bookaddict.Model.Item;
 import com.example.bookaddict.Model.VolumesResponse;
 import com.example.bookaddict.R;
@@ -21,6 +28,7 @@ import com.example.bookaddict.Repository.RepositoryVolumes;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -37,7 +45,12 @@ public class MainActivity extends AppCompatActivity {
     EditText etxtSearch;
     @BindView(R.id.imgv_icon_search)
     ImageView imgvSearch;
-
+    @BindView(R.id.error_layout)
+    ConstraintLayout error_layout;
+    @BindView(R.id.error_txt_cause)
+    TextView txtv_error;
+    @BindView(R.id.error_btn_retry)
+    Button btn_retry;
     LinearLayoutManager linearLayoutManager;
     List<Item> items;
     PaginationAdapter paginationAdapter;
@@ -80,23 +93,17 @@ public class MainActivity extends AppCompatActivity {
                 return isLoading;
             }
         });
-
-        imgvSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ITEMS_ARE_NULL = false;
-                if(INDEX_OF_START_ITEM == 0) {
-                    mainProgressBar.setVisibility(View.VISIBLE);
-                }
-                loadBooks();
-            }
-        });
-
     }
 
-//    @OnClick(R.id.imgv_icon_search)
+
+    @OnClick({R.id.imgv_icon_search,R.id.error_btn_retry})
     public void loadBooks(){
         if(!TextUtils.isEmpty(etxtSearch.getText())){
+            if(INDEX_OF_START_ITEM == 0) {
+                ITEMS_ARE_NULL = false;
+                mainProgressBar.setVisibility(View.VISIBLE);
+            }
+                hideErrorView();
                 Single<VolumesResponse> single = RepositoryVolumes.getRepositoryVolumesInstance().getTenItems(etxtSearch.getText().toString(),INDEX_OF_START_ITEM,3);
                 single.subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
@@ -108,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onSuccess(VolumesResponse responseBody) {
+                                hideErrorView();
                                 if(responseBody.getItems() == null || responseBody.getItems().size() == 0 ){
                                     paginationAdapter.removeLoadingFooter();
                                     ITEMS_ARE_NULL = true;
@@ -129,10 +137,47 @@ public class MainActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onError(Throwable e) {
+                            public void onError(Throwable e){
                                 Log.d(TAG, "onError: " +e.getMessage());
+                                mainProgressBar.setVisibility(View.GONE);
+                                showErrorView(e);
                             }
                         });
+
+        }
+    }
+
+    private void showErrorView(Throwable throwable) {
+        if (error_layout.getVisibility() == View.GONE) {
+            error_layout.setVisibility(View.VISIBLE);
+            mainProgressBar.setVisibility(View.GONE);
+            // display appropriate error message
+            // Handling 3 generic fail cases.
+            if (!isNetworkConnected()) {
+                txtv_error.setText(R.string.error_msg_no_internet);
+            } else {
+                if (throwable instanceof TimeoutException) {
+                    txtv_error.setText(R.string.error_msg_timeout);
+                } else {
+                    txtv_error.setText(R.string.error_msg_unknown);
+                }
+            }
+        }
+    }
+
+    /**
+     * Remember to add android.permission.ACCESS_NETWORK_STATE permission.
+     *
+     * @return
+     */
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+    }
+
+    private void hideErrorView() {
+        if (error_layout.getVisibility() == View.VISIBLE) {
+            error_layout.setVisibility(View.GONE);
 
         }
     }
