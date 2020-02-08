@@ -38,4 +38,8 @@ public class ImageLinks {
     public String getImageForThumbnail(){
      return smallThumbnail != null ? smallThumbnail :   thumbnail != null ? thumbnail : small != null ? small: medium;
     }
+
+    public String getImageForHero(){
+        return large != null ? large : medium != null ? medium : extraLarge;
+    }
 }
