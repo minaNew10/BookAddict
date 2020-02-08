@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.util.concurrent.TimeoutException;
 import com.example.bookaddict.Model.Item;
 import com.example.bookaddict.Model.VolumesResponse;
@@ -36,7 +38,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class MainActivity extends AppCompatActivity implements PaginationAdapter.OnBookClickListener {
+public class MainActivity extends AppCompatActivity implements PaginationAdapter.OnRetryBtnListener,PaginationAdapter.OnBookClickListener {
     private static final String TAG = "MainActivity";
     @BindView(R.id.recycler_main_activity_search_results)
     RecyclerView recyclerView;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        paginationAdapter = new PaginationAdapter(this,this);
+        paginationAdapter = new PaginationAdapter(this,this,this);
         linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false);
 
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -188,13 +190,15 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         }
     }
 
-    @Override
-    public void onClick(Item currItem) {
 
-    }
 
     @Override
     public void retryPageLoad() {
         loadBooks();
+    }
+
+    @Override
+    public void onClick(Item currItem) {
+        Toast.makeText(this,currItem.getVolumeInfo().getTitle(),Toast.LENGTH_LONG).show();
     }
 }

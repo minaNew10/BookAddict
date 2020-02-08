@@ -45,12 +45,16 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
     OnBookClickListener mOnRecyclerItemClickListener;
+    OnRetryBtnListener onRetryBtnListener;
     Context context;
 
     private String errorMsg;
 
     public interface OnBookClickListener {
         void onClick(Item currItem);
+    }
+
+    public interface OnRetryBtnListener{
         void retryPageLoad();
     }
 
@@ -66,7 +70,11 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.context = context;
         this.mOnRecyclerItemClickListener = listener;
     }
-
+    public PaginationAdapter(Context context, OnRetryBtnListener listener,OnBookClickListener onBookClickListener) {
+        this.context = context;
+        this.onRetryBtnListener = listener;
+        this.mOnRecyclerItemClickListener = onBookClickListener;
+    }
     public List<Item> getItems() {
         return items;
     }
@@ -291,7 +299,7 @@ public class PaginationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 case R.id.loadmore_retry:
                 case R.id.loadmore_errorlayout:
                     showRetry(false,null);
-                    mOnRecyclerItemClickListener.retryPageLoad();
+                    onRetryBtnListener.retryPageLoad();
                     break;
             }
 
